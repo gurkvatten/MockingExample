@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BookingSystemTest {
@@ -32,5 +33,18 @@ class BookingSystemTest {
 
         assertThatThrownBy(() -> bookingSystem.bookRoom("R1", start, null))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+    @Test
+    void bookRoom_shouldThrow_whenStartTimeIsInThePast() {
+        LocalDateTime now = LocalDateTime.of(2026, 2, 3, 10, 0);
+        when(timeProvider.getCurrentTime()).thenReturn(now);
+
+        LocalDateTime start = now.minusMinutes(1);
+        LocalDateTime end = now.plusHours(1);
+
+        assertThatThrownBy(() ->
+                bookingSystem.bookRoom("R1", start, end)
+        ).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("dåtid");
     }
 }
