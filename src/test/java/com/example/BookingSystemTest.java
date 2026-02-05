@@ -47,4 +47,17 @@ class BookingSystemTest {
         ).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("dåtid");
     }
+    @Test
+    void bookRoom_shouldThrow_whenEndTimeIsBeforeStartTime() {
+        LocalDateTime now = LocalDateTime.of(2026, 2, 3, 10, 0);
+        when(timeProvider.getCurrentTime()).thenReturn(now);
+
+        LocalDateTime start = now.plusHours(2);
+        LocalDateTime end = now.plusHours(1);
+
+        assertThatThrownBy(() ->
+                bookingSystem.bookRoom("R1", start, end)
+        ).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Sluttid");
+    }
 }
