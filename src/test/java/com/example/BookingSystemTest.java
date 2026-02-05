@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BookingSystemTest {
@@ -59,5 +59,24 @@ class BookingSystemTest {
                 bookingSystem.bookRoom("R1", start, end)
         ).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Sluttid");
+    }
+    @Test
+    void bookRoom_shouldThrow_whenRoomDoesNotExist() {
+
+        LocalDateTime now = LocalDateTime.of(2026, 2, 3, 10, 0);
+        when(timeProvider.getCurrentTime()).thenReturn(now);
+
+        LocalDateTime start = now.plusHours(1);
+        LocalDateTime end = now.plusHours(2);
+
+        when(roomRepository.findById("missing")).thenReturn(java.util.Optional.empty());
+
+        assertThatThrownBy(() ->
+                bookingSystem.bookRoom("missing", start, end)
+        ).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("existerar inte");
+
+        verify(roomRepository).findById("missing");
+        verify(roomRepository, never()).save(any());
     }
 }
