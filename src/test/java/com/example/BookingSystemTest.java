@@ -9,7 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BookingSystemTest {
@@ -59,5 +60,50 @@ class BookingSystemTest {
                 bookingSystem.bookRoom("R1", start, end)
         ).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Sluttid");
+    }
+    @Test
+    void bookRoom_shouldThrow_whenRoomDoesNotExist() {
+
+        LocalDateTime now = LocalDateTime.of(2026, 2, 3, 10, 0);
+        when(timeProvider.getCurrentTime()).thenReturn(now);
+
+        LocalDateTime start = now.plusHours(1);
+        LocalDateTime end = now.plusHours(2);
+
+        when(roomRepository.findById("missing")).thenReturn(java.util.Optional.empty());
+
+        assertThatThrownBy(() ->
+                bookingSystem.bookRoom("missing", start, end)
+        ).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("existerar inte");
+
+        verify(roomRepository).findById("missing");
+        verify(roomRepository, never()).save(any());
+    }
+    @Test
+    void bookRoom_shouldReturnFalse_whenRoomIsNotAvailable() throws NotificationException {
+        LocalDateTime now = LocalDateTime.of(2026, 2, 3, 10, 0);
+        when(timeProvider.getCurrentTime()).thenReturn(now);
+
+        LocalDateTime start = now.plusHours(1);
+        LocalDateTime end = now.plusHours(2);
+
+        Room room = new Room("R1", "Room 1");
+
+        room.addBooking(new Booking(
+                "B1",
+                "R1",
+                start.minusMinutes(10),
+                start.plusMinutes(10)
+        ));
+
+        when(roomRepository.findById("R1")).thenReturn(java.util.Optional.of(room));
+
+        boolean result = bookingSystem.bookRoom("R1", start, end);
+
+
+        assertThat(result).isFalse();
+        verify(roomRepository, never()).save(any());
+        verify(notificationService, never()).sendBookingConfirmation(any());
     }
 }
