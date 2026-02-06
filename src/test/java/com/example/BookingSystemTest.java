@@ -220,6 +220,31 @@ class BookingSystemTest {
         verify(roomRepository, never()).save(any());
         verify(notificationService, never()).sendCancellationConfirmation(any());
     }
+    @Test
+    void cancelBooking_shouldThrow_whenBookingHasAlreadyStarted() throws NotificationException {
+        LocalDateTime now = LocalDateTime.of(2026, 2, 3, 10, 0);
+        when(timeProvider.getCurrentTime()).thenReturn(now);
+
+        Room room = new Room("R1", "Room 1");
+        Booking booking = new Booking(
+                "B1",
+                "R1",
+                now.minusMinutes(1),
+                now.plusHours(1)
+        );
+        room.addBooking(booking);
+
+        when(roomRepository.findAll())
+                .thenReturn(java.util.List.of(room));
+
+        assertThatThrownBy(() -> bookingSystem.cancelBooking("B1"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("avboka");
+
+        verify(roomRepository, never()).save(any());
+        verify(notificationService, never()).sendCancellationConfirmation(any());
+    }
+
 
 
 
