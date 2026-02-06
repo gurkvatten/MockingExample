@@ -9,7 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -172,8 +173,33 @@ class BookingSystemTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Sluttid");
     }
+    @Test
+    void getAvailableRooms_shouldReturnOnlyRoomsThatAreAvailable() {
+        LocalDateTime start = LocalDateTime.of(2026, 2, 3, 12, 0);
+        LocalDateTime end = LocalDateTime.of(2026, 2, 3, 13, 0);
 
+        Room available = new Room("A", "Available room");
 
+        Room notAvailable = new Room("N", "Not available room");
+        notAvailable.addBooking(new Booking(
+                "B1",
+                "N",
+                start.minusMinutes(10),
+                start.plusMinutes(10)
+        ));
+
+        when(roomRepository.findAll())
+                .thenReturn(java.util.List.of(available, notAvailable));
+
+        java.util.List<Room> result =
+                bookingSystem.getAvailableRooms(start, end);
+
+        assertThat(result)
+                .extracting(Room::getId)
+                .containsExactly("A");
+
+        verify(roomRepository).findAll();
+    }
 
 
 }
