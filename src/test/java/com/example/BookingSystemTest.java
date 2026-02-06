@@ -206,6 +206,21 @@ class BookingSystemTest {
         assertThatThrownBy(() -> bookingSystem.cancelBooking(bookingId))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+    @Test
+    void cancelBooking_shouldReturnFalse_whenBookingIsNotFoundInAnyRoom() throws NotificationException {
+        Room room1 = new Room("R1", "Room 1");
+        Room room2 = new Room("R2", "Room 2");
+
+        when(roomRepository.findAll())
+                .thenReturn(java.util.List.of(room1, room2));
+
+        boolean result = bookingSystem.cancelBooking("missing-booking-id");
+
+        assertThat(result).isFalse();
+        verify(roomRepository, never()).save(any());
+        verify(notificationService, never()).sendCancellationConfirmation(any());
+    }
+
 
 
 
