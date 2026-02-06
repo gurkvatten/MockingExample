@@ -200,6 +200,13 @@ class BookingSystemTest {
 
         verify(roomRepository).findAll();
     }
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.NullSource
+    void cancelBooking_shouldThrow_whenBookingIdIsNull(String bookingId) {
+        assertThatThrownBy(() -> bookingSystem.cancelBooking(bookingId))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
 
 
 }
