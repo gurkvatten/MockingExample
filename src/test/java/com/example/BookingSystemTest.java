@@ -244,6 +244,32 @@ class BookingSystemTest {
         verify(roomRepository, never()).save(any());
         verify(notificationService, never()).sendCancellationConfirmation(any());
     }
+    @Test
+    void cancelBooking_shouldRemoveBookingSaveAndNotify_whenBookingIsInTheFuture() throws Exception {
+        LocalDateTime now = LocalDateTime.of(2026, 2, 3, 10, 0);
+        when(timeProvider.getCurrentTime()).thenReturn(now);
+
+        Room room = new Room("R1", "Room 1");
+        Booking booking = new Booking(
+                "B1",
+                "R1",
+                now.plusHours(3),
+                now.plusHours(4)
+        );
+        room.addBooking(booking);
+
+        when(roomRepository.findAll())
+                .thenReturn(java.util.List.of(room));
+
+        boolean result = bookingSystem.cancelBooking("B1");
+
+        assertThat(result).isTrue();
+        assertThat(room.hasBooking("B1")).isFalse();
+
+        verify(roomRepository).save(room);
+        verify(notificationService).sendCancellationConfirmation(booking);
+    }
+
 
 
 
