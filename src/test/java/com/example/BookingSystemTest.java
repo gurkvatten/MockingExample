@@ -132,5 +132,26 @@ class BookingSystemTest {
         assertThat(sentBooking.getEndTime()).isEqualTo(end);
         assertThat(sentBooking.getId()).isNotBlank();
     }
+    @Test
+    void bookRoom_shouldStillReturnTrue_whenConfirmationNotificationFails() throws Exception {
+        LocalDateTime now = LocalDateTime.of(2026, 2, 3, 10, 0);
+        when(timeProvider.getCurrentTime()).thenReturn(now);
+
+        LocalDateTime start = now.plusHours(1);
+        LocalDateTime end = now.plusHours(2);
+
+        Room room = new Room("R1", "Room 1");
+        when(roomRepository.findById("R1")).thenReturn(java.util.Optional.of(room));
+
+        doThrow(new NotificationException("fail"))
+                .when(notificationService).sendBookingConfirmation(any());
+
+        boolean result = bookingSystem.bookRoom("R1", start, end);
+
+        assertThat(result).isTrue();
+        verify(roomRepository).save(room);
+        verify(notificationService).sendBookingConfirmation(any());
+    }
+
 
 }
