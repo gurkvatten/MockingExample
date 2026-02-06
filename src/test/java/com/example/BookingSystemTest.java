@@ -152,6 +152,28 @@ class BookingSystemTest {
         verify(roomRepository).save(room);
         verify(notificationService).sendBookingConfirmation(any());
     }
+    @Test
+    void getAvailableRooms_shouldThrow_whenStartOrEndIsNull() {
+        LocalDateTime start = LocalDateTime.of(2026, 2, 3, 12, 0);
+        LocalDateTime end = LocalDateTime.of(2026, 2, 3, 13, 0);
+
+        assertThatThrownBy(() -> bookingSystem.getAvailableRooms(null, end))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        assertThatThrownBy(() -> bookingSystem.getAvailableRooms(start, null))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+    @Test
+    void getAvailableRooms_shouldThrow_whenEndIsBeforeStart() {
+        LocalDateTime start = LocalDateTime.of(2026, 2, 3, 13, 0);
+        LocalDateTime end = LocalDateTime.of(2026, 2, 3, 12, 0);
+
+        assertThatThrownBy(() -> bookingSystem.getAvailableRooms(start, end))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Sluttid");
+    }
+
+
 
 
 }
