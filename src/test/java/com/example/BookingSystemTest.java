@@ -106,4 +106,31 @@ class BookingSystemTest {
         verify(roomRepository, never()).save(any());
         verify(notificationService, never()).sendBookingConfirmation(any());
     }
+    @Test
+    void bookRoom_shouldSaveRoomAndSendConfirmation_whenRoomIsAvailable() throws Exception {
+
+        LocalDateTime now = LocalDateTime.of(2026, 2, 3, 10, 0);
+        when(timeProvider.getCurrentTime()).thenReturn(now);
+
+        LocalDateTime start = now.plusHours(1);
+        LocalDateTime end = now.plusHours(2);
+
+        Room room = new Room("R1", "Room 1");
+        when(roomRepository.findById("R1")).thenReturn(java.util.Optional.of(room));
+
+        boolean result = bookingSystem.bookRoom("R1", start, end);
+
+        assertThat(result).isTrue();
+        verify(roomRepository).save(room);
+
+        var captor = org.mockito.ArgumentCaptor.forClass(Booking.class);
+        verify(notificationService).sendBookingConfirmation(captor.capture());
+
+        Booking sentBooking = captor.getValue();
+        assertThat(sentBooking.getRoomId()).isEqualTo("R1");
+        assertThat(sentBooking.getStartTime()).isEqualTo(start);
+        assertThat(sentBooking.getEndTime()).isEqualTo(end);
+        assertThat(sentBooking.getId()).isNotBlank();
+    }
+
 }
