@@ -13,4 +13,13 @@ class ShoppingCartTest {
 
         assertThat(cart.totalPrice()).isZero();
     }
+    @Test
+    void totalPrice_shouldBeSumOfAddedItemPrices() {
+        ShoppingCart cart = new ShoppingCart();
+
+        cart.addItem("Apple", 10.0);
+
+        assertThat(cart.totalPrice()).isEqualTo(10.0);
+    }
+
 }
