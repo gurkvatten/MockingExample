@@ -50,6 +50,16 @@ class ShoppingCartTest {
 
         assertThat(cart.totalPrice()).isEqualTo(20.0);
     }
+    @Test
+    void updateQuantity_shouldChangeTotalPrice() {
+        ShoppingCart cart = new ShoppingCart();
+
+        cart.addItem("Apple", 10.0);
+        cart.updateQuantity("Apple", 3);
+
+        assertThat(cart.totalPrice()).isEqualTo(30.0);
+    }
+
 
 
 
