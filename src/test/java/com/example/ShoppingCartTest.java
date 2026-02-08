@@ -78,6 +78,16 @@ class ShoppingCartTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("negative");
     }
+    @Test
+    void applyDiscount_shouldThrow_whenDiscountIsInvalid() {
+        ShoppingCart cart = new ShoppingCart();
+
+        assertThatThrownBy(() -> cart.applyDiscount(-1))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        assertThatThrownBy(() -> cart.applyDiscount(150))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
 
 
 
