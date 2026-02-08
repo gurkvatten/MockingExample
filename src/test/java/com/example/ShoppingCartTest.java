@@ -41,6 +41,16 @@ class ShoppingCartTest {
 
         assertThat(cart.totalPrice()).isEqualTo(5.0);
     }
+    @Test
+    void totalPrice_shouldHandleMultipleAddsOfSameItem() {
+        ShoppingCart cart = new ShoppingCart();
+
+        cart.addItem("Apple", 10.0);
+        cart.addItem("Apple", 10.0);
+
+        assertThat(cart.totalPrice()).isEqualTo(20.0);
+    }
+
 
 
 
