@@ -6,6 +6,9 @@ import java.util.List;
 
 public class ShoppingCart {
 
+    private double discountPercent = 0.0;
+
+
     public void updateQuantity(String name, int quantity) {
         if (quantity < 0) {
             throw new IllegalArgumentException("Quantity cannot be negative");
@@ -29,6 +32,11 @@ public class ShoppingCart {
             items.add(new Item(name, price));
         }
     }
+
+    public void applyDiscount(double percent) {
+        discountPercent = percent;
+    }
+
 
 
     private static class Item {
@@ -58,8 +66,11 @@ public class ShoppingCart {
     }
 
     public double totalPrice() {
-        return items.stream()
+        double sum = items.stream()
                 .mapToDouble(item -> item.price)
                 .sum();
+
+        return sum * (1.0 - (discountPercent / 100.0));
     }
+
 }

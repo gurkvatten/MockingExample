@@ -59,6 +59,16 @@ class ShoppingCartTest {
 
         assertThat(cart.totalPrice()).isEqualTo(30.0);
     }
+    @Test
+    void totalPrice_shouldApplyDiscountPercentage() {
+        ShoppingCart cart = new ShoppingCart();
+
+        cart.addItem("Apple", 100.0);
+        cart.applyDiscount(10.0);
+
+        assertThat(cart.totalPrice()).isEqualTo(90.0);
+    }
+
 
 
 
