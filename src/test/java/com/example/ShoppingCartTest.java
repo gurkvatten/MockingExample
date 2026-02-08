@@ -21,5 +21,15 @@ class ShoppingCartTest {
 
         assertThat(cart.totalPrice()).isEqualTo(10.0);
     }
+    @Test
+    void totalPrice_shouldSumMultipleItems() {
+        ShoppingCart cart = new ShoppingCart();
+
+        cart.addItem("Apple", 10.0);
+        cart.addItem("Banana", 5.5);
+
+        assertThat(cart.totalPrice()).isEqualTo(15.5);
+    }
+
 
 }
